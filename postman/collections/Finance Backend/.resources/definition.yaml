@@ -1,0 +1,6 @@
+$kind: collection
+name: Finance Backend
+description: 'POST endpoints for the Finance Backend TransactionController'
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
