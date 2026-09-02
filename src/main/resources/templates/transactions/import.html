@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Import transactions | Finance</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f3f3f3;
+        padding: 30px;
+      }
+      .box {
+        max-width: 600px;
+        margin: 20px auto;
+        background: white;
+        border: 1px solid #ddd;
+        padding: 20px;
+      }
+      a {
+        color: #2f6fed;
+      }
+      form {
+        display: grid;
+        gap: 12px;
+        margin-top: 24px;
+      }
+      input[type="file"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+        border: 1px solid #ccc;
+      }
+      button {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+        color: white;
+        background: #2f6fed;
+        border: 0;
+        cursor: pointer;
+      }
+      .hint {
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <p>
+        <a href="/">Home</a> | <a href="/transactions">All transactions</a> |
+        <a href="/transaction/new">Add transaction</a>
+      </p>
+      <h1>Import transactions</h1>
+      <p class="hint">Select a CSV file containing your transactions.</p>
+      <form action="/import" method="post" enctype="multipart/form-data">
+        <label for="file">CSV file</label>
+        <input
+          id="file"
+          name="file"
+          type="file"
+          accept=".csv,text/csv"
+          required
+        />
+        <button type="submit">Import transactions</button>
+      </form>
+    </div>
+  </body>
+</html>

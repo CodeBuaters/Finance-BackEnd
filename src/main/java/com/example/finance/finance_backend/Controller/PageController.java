@@ -48,4 +48,9 @@ public class PageController {
         model.addAttribute("transactions", transactionService.getAllTransactions());
         return "transactions/list";
     }
+
+    @GetMapping("/transactions/import")
+    public String importTransactions() {
+        return "transactions/import";
+    }
 }
