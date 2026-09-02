@@ -1,9 +1,13 @@
 package com.example.finance.finance_backend.Controller;
 
-import com.example.finance.finance_backend.Service.TransactionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import com.example.finance.finance_backend.Model.Category;
+import com.example.finance.finance_backend.Model.Transaction;
+import com.example.finance.finance_backend.Model.TransactionType;
+import com.example.finance.finance_backend.Service.TransactionService;
 
 @Controller
 public class PageController {
@@ -16,7 +20,32 @@ public class PageController {
 
     @GetMapping("/")
     public String index(Model model) {
-        model.addAttribute("transactions", transactionService.getAllTransactions());
         return "index";
+    }
+
+    @GetMapping("/transaction/new")
+    public String newTransaction(Model model) {
+        model.addAttribute("transaction", new Transaction());
+        model.addAttribute("transactionTypes", TransactionType.values());
+        model.addAttribute("categories", Category.values());
+        return "transactions/form";
+    }
+
+    @GetMapping("/transaction/edit/{id}")
+    public String editTransaction(@org.springframework.web.bind.annotation.PathVariable Long id, Model model) {
+        return transactionService.getTransactionById(id)
+                .map(transaction -> {
+                    model.addAttribute("transaction", transaction);
+                    model.addAttribute("transactionTypes", TransactionType.values());
+                    model.addAttribute("categories", Category.values());
+                    return "transactions/form";
+                })
+                .orElse("redirect:/transactions");
+    }
+
+    @GetMapping("/transactions")
+    public String transactions(Model model) {
+        model.addAttribute("transactions", transactionService.getAllTransactions());
+        return "transactions/list";
     }
 }

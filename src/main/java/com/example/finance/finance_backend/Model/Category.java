@@ -1,15 +1,25 @@
 package com.example.finance.finance_backend.Model;
 
 public enum Category {
-    FOOD,
-    TRANSPORTATION,
-    ENTERTAINMENT,
-    HOUSING,
-    UTILITIES,
-    HEALTHCARE,
-    EDUCATION,
-    PERSONAL_CARE,
-    TRAVEL,
-    SHOPPING,
-    OTHER
+    FOOD("Food"),
+    TRANSPORTATION("Transportation"),
+    ENTERTAINMENT("Entertainment"),
+    HOUSING("Housing"),
+    UTILITIES("Utilities"),
+    HEALTHCARE("Healthcare"),
+    EDUCATION("Education"),
+    PERSONAL_CARE("Personal Care"),
+    TRAVEL("Travel"),
+    SHOPPING("Shopping"),
+    OTHER("Other");
+
+    private final String displayName;
+
+    Category(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 }
