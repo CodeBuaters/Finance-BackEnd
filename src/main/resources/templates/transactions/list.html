@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transactions | Finance</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f3f3f3;
+        padding: 30px;
+      }
+      .box {
+        max-width: 900px;
+        margin: 20px auto;
+        background: white;
+        border: 1px solid #ddd;
+        padding: 20px;
+        overflow-x: auto;
+      }
+      a {
+        color: #2f6fed;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background: #f7f7f7;
+      }
+      form {
+        margin: 0;
+      }
+      button {
+        color: #a00;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <p>
+        <a href="/">Home</a> | <a href="/transaction/new">Add transaction</a>
+      </p>
+      <h1>All transactions</h1>
+      <p th:if="${#lists.isEmpty(transactions)}">No transactions yet.</p>
+      <table th:unless="${#lists.isEmpty(transactions)}">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Type</th>
+            <th>Merchant</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="transaction : ${transactions}">
+            <td th:text="${transaction.transactionDate}">2026-01-01</td>
+            <td th:text="${transaction.amount}">0.00</td>
+            <td th:text="${transaction.transactionType}">INCOME</td>
+            <td th:text="${transaction.merchant}">Merchant</td>
+            <td th:text="${transaction.description}">Description</td>
+            <td
+              th:text="${transaction.category != null ? transaction.category.displayName : 'Uncategorized'}"
+            >
+              Uncategorized
+            </td>
+            <td>
+              <form
+                th:action="@{/transaction/edit/{id}(id=${transaction.id})}"
+                method="get"
+              >
+                <button type="submit">Edit</button>
+              </form>
+              <form
+                th:action="@{/transaction/delete/{id}(id=${transaction.id})}"
+                method="post"
+              >
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
