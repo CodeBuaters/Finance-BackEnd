@@ -1,0 +1,27 @@
+$kind: http-request
+name: 'Edit Transaction'
+order: 2000
+method: POST
+url: '{{base_url}}/transaction/edit/:id'
+pathVariables:
+  - key: id
+    value: '1'
+    description: 'ID of the transaction to edit'
+body:
+  type: urlencoded
+  content:
+    - key: amount
+      value: '75.00'
+      description: 'Updated transaction amount (BigDecimal)'
+    - key: merchant
+      value: 'Supermarket'
+      description: 'Updated merchant name'
+    - key: description
+      value: 'Weekly groceries'
+      description: 'Optional updated description'
+    - key: transactionType
+      value: 'EXPENSE'
+      description: 'EXPENSE or INCOME'
+    - key: category
+      value: 'FOOD'
+      description: 'Optional category (e.g. FOOD, TRANSPORT, ENTERTAINMENT)'

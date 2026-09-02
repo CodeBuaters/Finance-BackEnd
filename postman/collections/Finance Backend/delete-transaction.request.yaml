@@ -1,0 +1,9 @@
+$kind: http-request
+name: 'Delete Transaction'
+order: 3000
+method: POST
+url: '{{base_url}}/transaction/delete/:id'
+pathVariables:
+  - key: id
+    value: '1'
+    description: 'ID of the transaction to delete'
