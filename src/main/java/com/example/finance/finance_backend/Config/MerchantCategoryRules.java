@@ -69,9 +69,6 @@ public final class MerchantCategoryRules {
         // INCOME
         RULES.put("SALARY", Category.SALARY);
 
-        // TRANSFER
-        RULES.put("TRANSFER", Category.TRANSFER);
-
         RULES.put("RENT", Category.HOUSING);
         RULES.put("ELECTRICITY", Category.UTILITIES);
         RULES.put("DOCTOR", Category.HEALTHCARE);
@@ -79,7 +76,6 @@ public final class MerchantCategoryRules {
         RULES.put("SALARY", Category.SALARY);
         RULES.put("AIRBNB", Category.TRAVEL);
         RULES.put("AMAZON", Category.SHOPPING);
-        RULES.put("TRANSFER", Category.TRANSFER);
         RULES.put("OTHER", Category.OTHER);
     }
 }
