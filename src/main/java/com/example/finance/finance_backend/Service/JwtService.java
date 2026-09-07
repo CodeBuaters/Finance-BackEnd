@@ -30,8 +30,8 @@ public class JwtService {
         Instant expireAt = Instant.now().plus(8, ChronoUnit.HOURS);
 
         String accessToken = Jwts.builder()
-            .setSubject(username)
-            .setExpiration(Date.from(expireAt))
+            .subject(username)
+            .expiration(Date.from(expireAt))
             .signWith(getSigninKey())
             .compact();
 
