@@ -6,7 +6,7 @@ FinSight is a personal finance dashboard that allows users to import bank transa
 
 ## Tech Stack
 
-- Java 21
+- Java 17
 - Spring Boot 3
 - Spring Web
 - Spring Data JPA
