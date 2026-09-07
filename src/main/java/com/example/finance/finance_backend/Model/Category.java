@@ -9,13 +9,11 @@ public enum Category {
     HEALTHCARE("Healthcare"),
     EDUCATION("Education"),
     PERSONAL_CARE("Personal Care"),
+    SALARY("Salary"),
     TRAVEL("Travel"),
     SHOPPING("Shopping"),
-    OTHER("Other"),
-    SALARY("Salary"),
-    TRANSFER("Transfer");
-
-    
+    TRANSFER("Transfer"),
+    OTHER("Other");
 
     private final String displayName;
 
