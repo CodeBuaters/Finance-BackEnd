@@ -126,7 +126,7 @@ Entities:
 
 - User
 - Transaction
-- Category (planned)
+- Category
 - Budget (planned)
 
 Relationship:
