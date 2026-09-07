@@ -24,4 +24,13 @@ public enum Category {
     public String getDisplayName() {
         return displayName;
     }
+
+    public static Category fromString(String category) {
+        for (Category c : Category.values()) {
+            if (c.name().equalsIgnoreCase(category)) {
+                return c;
+            }
+        }
+        return OTHER; // Default to OTHER if no match is found
+    }
 }

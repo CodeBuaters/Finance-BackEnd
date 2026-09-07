@@ -21,6 +21,9 @@ public final class MerchantCategoryRules {
         RULES.put("PRISMA", Category.FOOD);
         RULES.put("CITYMARKET", Category.FOOD);
         RULES.put("MCDONALDS", Category.FOOD);
+        RULES.put("MCDONALD'S", Category.FOOD);
+        RULES.put("HESBURGER", Category.FOOD);
+        RULES.put("PIZZAHUT", Category.FOOD);
         RULES.put("BURGER KING", Category.FOOD);
         RULES.put("SUBWAY", Category.FOOD);
         RULES.put("PIZZA HUT", Category.FOOD);
@@ -58,6 +61,8 @@ public final class MerchantCategoryRules {
         RULES.put("ALIEXPRESS", Category.SHOPPING);
         RULES.put("WALMART", Category.SHOPPING);
         RULES.put("VERKKOKAUPPA", Category.SHOPPING);
+        RULES.put("ZALANDO", Category.SHOPPING);
+        RULES.put("H&M", Category.SHOPPING);
 
         // HEALTHCARE
         RULES.put("DOCTOR", Category.HEALTHCARE);

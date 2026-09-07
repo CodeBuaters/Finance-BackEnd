@@ -1,15 +1,15 @@
 package com.example.finance.finance_backend.Service;
 
-import java.io.Reader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDate;
+import java.io.Reader;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.math.BigDecimal;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -50,7 +50,8 @@ public class CsvImportService {
 
                 Transaction transaction = new Transaction();
                 transaction.setAmount(new BigDecimal(required(record, headers, "amount")));
-                transaction.setMerchant(required(record, headers, "merchant"));
+                String merchant = required(record, headers, "merchant");
+                transaction.setMerchant(merchant);
                 transaction.setDescription(optional(record, headers, "description"));
                 transaction.setTransactionDate(parseDate(record, headers));
                 transaction.setTransactionType(new BigDecimal(required(record, headers, "amount"))
@@ -58,8 +59,13 @@ public class CsvImportService {
                                 ? TransactionType.INCOME
                                 : TransactionType.EXPENSE);
                 String category = optional(record, headers, "category");
-                if (category != null) {
-                    transaction.setCategory(Category.valueOf(category.toUpperCase()));
+                RuleBasedCategorizationService categoryService = new RuleBasedCategorizationService();
+                if (category == null) {
+                    transaction.setCategory(categoryService.categorize(merchant));
+                } else if (!category.isEmpty()) {
+                    transaction.setCategory(Category.fromString(category));
+                } else {
+                    transaction.setCategory(Category.OTHER);
                 }
                 transactions.add(transaction);
             }

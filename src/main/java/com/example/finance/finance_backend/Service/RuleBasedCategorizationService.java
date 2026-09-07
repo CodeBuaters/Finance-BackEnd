@@ -16,10 +16,9 @@ public class RuleBasedCategorizationService {
         String normalizedMerchant = merchant.toUpperCase();
 
         return MerchantCategoryRules.RULES.entrySet().stream()
-                .filter(rule -> normalizedMerchant.contains(rule.getKey()))
+                .filter(rule -> normalizedMerchant.contains(rule.getKey().toUpperCase()))
                 .map(rule -> rule.getValue())
                 .findFirst()
                 .orElse(Category.OTHER);
-
     }
 }
