@@ -11,7 +11,11 @@ public enum Category {
     PERSONAL_CARE("Personal Care"),
     TRAVEL("Travel"),
     SHOPPING("Shopping"),
-    OTHER("Other");
+    OTHER("Other"),
+    SALARY("Salary"),
+    TRANSFER("Transfer");
+
+    
 
     private final String displayName;
 
