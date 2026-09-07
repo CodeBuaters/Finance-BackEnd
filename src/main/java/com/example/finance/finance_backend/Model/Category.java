@@ -12,7 +12,6 @@ public enum Category {
     SALARY("Salary"),
     TRAVEL("Travel"),
     SHOPPING("Shopping"),
-    TRANSFER("Transfer"),
     OTHER("Other");
 
     private final String displayName;
