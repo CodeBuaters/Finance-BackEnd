@@ -41,15 +41,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/api/auth/register").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()
-                /* .anyRequest().authenticated() */
-                .anyRequest().permitAll()
+                .requestMatchers("/login", "/register").permitAll()
+                .anyRequest().authenticated()
             )
             .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> 
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("email")
+                .defaultSuccessUrl("/", true)
+                .failureUrl("/login?error")
+                .permitAll()
             )
             .headers(headers -> headers
                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
