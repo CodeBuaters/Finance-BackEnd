@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.finance.finance_backend.Model.User;
 import com.example.finance.finance_backend.Repository.UserRepository;
 
-@Service 
+@Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -19,10 +19,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByEmail(username)
+                .or(() -> userRepository.findByUsername(username))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return org.springframework.security.core.userdetails.User.withUsername(user.getEmail())
-            .password(user.getPasswordHash())
-            .build();
+                .password(user.getPasswordHash())
+                .build();
     }
 }

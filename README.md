@@ -6,7 +6,7 @@ FinSight is a personal finance dashboard that allows users to import bank transa
 
 ## Tech Stack
 
-- Java 21
+- Java 17
 - Spring Boot 3
 - Spring Web
 - Spring Data JPA
@@ -62,9 +62,9 @@ Create an `application.yml` file inside `src/main/resources`.
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/finsight
-    username: postgres
-    password: yourpassword
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   jpa:
     hibernate:
@@ -126,7 +126,7 @@ Entities:
 
 - User
 - Transaction
-- Category (planned)
+- Category
 - Budget (planned)
 
 Relationship:

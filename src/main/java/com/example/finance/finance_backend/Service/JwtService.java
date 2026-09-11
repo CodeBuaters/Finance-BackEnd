@@ -17,31 +17,29 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 
-@Service 
+@Service
 public class JwtService {
-    
+
     @Value("${auth.jwt-secret}")
-    private  String jwtSecret;
+    private String jwtSecret;
 
     private final String PREFIX = "Bearer ";
 
-
-    public  AccessTokenPayloadDto getAccessToken(String username) {
+    public AccessTokenPayloadDto getAccessToken(String username) {
         Instant expireAt = Instant.now().plus(8, ChronoUnit.HOURS);
 
         String accessToken = Jwts.builder()
-            .setSubject(username)
-            .setExpiration(Date.from(expireAt))
-            .signWith(getSigninKey())
-            .compact();
+                .subject(username)
+                .expiration(Date.from(expireAt))
+                .signWith(getSigninKey())
+                .compact();
 
         return new AccessTokenPayloadDto(accessToken, expireAt);
 
     }
 
     public String getAuthUser(HttpServletRequest request) {
-        String authorizationHeaderValue = 
-            request.getHeader(HttpHeaders.AUTHORIZATION);
+        String authorizationHeaderValue = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authorizationHeaderValue == null) {
             return null;
@@ -51,10 +49,10 @@ public class JwtService {
             String token = authorizationHeaderValue.replace(PREFIX, "");
 
             return getJwtParser()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-            
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+
         } catch (Exception e) {
             return null;
         }
@@ -67,8 +65,8 @@ public class JwtService {
 
     private JwtParser getJwtParser() {
         return Jwts.parser()
-            .verifyWith(getSigninKey())
-            .build();
+                .verifyWith(getSigninKey())
+                .build();
 
     }
 }

@@ -9,6 +9,7 @@ public enum Category {
     HEALTHCARE("Healthcare"),
     EDUCATION("Education"),
     PERSONAL_CARE("Personal Care"),
+    SALARY("Salary"),
     TRAVEL("Travel"),
     SHOPPING("Shopping"),
     OTHER("Other");
