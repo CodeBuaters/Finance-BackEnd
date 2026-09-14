@@ -1,5 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -32,16 +36,19 @@
   </head>
   <body>
     <div class="box">
+      <span sec:authorize="isAuthenticated()"
+        >Logged in as: <span th:text="${username}"></span
+      ></span>
+    </div>
+    <br />
+    <div class="box">
       <h1>Finance</h1>
       <p>Manage your personal transactions.</p>
       <a href="/transaction/new">Add transaction</a>
       <a href="/transactions">View all transactions</a>
       <a href="/transactions/import">Import transactions</a>
-<<<<<<< HEAD
-=======
-      <a href="/login">Login</a>
-      <a href="/register">Register</a>
->>>>>>> 0be6e254084eb252d335a615f182418d7de5a69d
+      <a sec:authorize="isAnonymous()" href="/login">Login</a>
+      <a sec:authorize="isAnonymous()" href="/register">Register</a>
     </div>
   </body>
 </html>

@@ -1,5 +1,6 @@
 package com.example.finance.finance_backend.Controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,19 +31,24 @@ public class PageController {
     }
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(Authentication authentication, Model model) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            userRepository.findByEmail(authentication.getName())
+                    .or(() -> userRepository.findByUsername(authentication.getName()))
+                    .ifPresent(user -> model.addAttribute("username", user.getUsername()));
+        }
         return "index";
     }
 
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "auth/login";
     }
 
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("registerRequest", new RegisterRequest());
-        return "register";
+        return "auth/register";
     }
 
     @PostMapping("/register")
@@ -50,7 +56,7 @@ public class PageController {
         if (userRepository.findByUsername(request.getUsername()).isPresent()
                 || userRepository.findByEmail(request.getEmail()).isPresent()) {
             model.addAttribute("error", "Username or email already exists.");
-            return "register";
+            return "auth/register";
         }
 
         User user = new User(request.getUsername(), request.getFirstName(), request.getLastName(),
