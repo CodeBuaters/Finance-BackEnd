@@ -36,7 +36,7 @@ public class UserRestController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/api/user/{email}")
+    @GetMapping("/api/user/email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
