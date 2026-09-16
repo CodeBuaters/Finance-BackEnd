@@ -1,18 +1,18 @@
 package com.example.finance.finance_backend.Controller.api;
 
-import org.springframework.web.multipart.MultipartFile;
-import com.example.finance.finance_backend.Service.CsvImportService;
-
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.finance.finance_backend.Model.Transaction;
+import com.example.finance.finance_backend.Model.TransactionType;
 import com.example.finance.finance_backend.Repository.TransactionRepository;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.example.finance.finance_backend.Service.CsvImportService;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -47,7 +47,8 @@ public class TransactionRestController {
     }
 
     @GetMapping("/api/transaction-type/{transactionType}/transactions")
-    public @ResponseBody Iterable<Transaction> getTransactionsByTransactionType(@PathVariable String transactionType) {
+    public @ResponseBody Iterable<Transaction> getTransactionsByTransactionType(
+            @PathVariable TransactionType transactionType) {
         return transactionRepository.findByTransactionType(transactionType);
     }
 

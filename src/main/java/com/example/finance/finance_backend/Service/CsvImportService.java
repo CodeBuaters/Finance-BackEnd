@@ -1,15 +1,16 @@
 package com.example.finance.finance_backend.Service;
 
-import java.io.Reader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDate;
+import java.io.Reader;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.math.BigDecimal;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -49,14 +50,12 @@ public class CsvImportService {
                 }
 
                 Transaction transaction = new Transaction();
-                transaction.setAmount(new BigDecimal(required(record, headers, "amount")));
+                BigDecimal amount = new BigDecimal(required(record, headers, "amount"));
+                transaction.setAmount(amount);
                 transaction.setMerchant(required(record, headers, "merchant"));
                 transaction.setDescription(optional(record, headers, "description"));
                 transaction.setTransactionDate(parseDate(record, headers));
-                transaction.setTransactionType(new BigDecimal(required(record, headers, "amount"))
-                        .compareTo(BigDecimal.ZERO) >= 0
-                                ? TransactionType.INCOME
-                                : TransactionType.EXPENSE);
+                transaction.setTransactionType(parseTransactionType(record, headers, amount));
                 String category = optional(record, headers, "category");
                 if (category != null) {
                     transaction.setCategory(Category.valueOf(category.toUpperCase()));
@@ -67,6 +66,20 @@ public class CsvImportService {
             throw new IllegalArgumentException("Could not read CSV file", exception);
         }
         return transactions;
+    }
+
+    private TransactionType parseTransactionType(CSVRecord record, Map<String, String> headers, BigDecimal amount) {
+        String type = optional(record, headers, "transactiontype", "type");
+        if (type == null) {
+            return amount.compareTo(BigDecimal.ZERO) >= 0 ? TransactionType.INCOME : TransactionType.EXPENSE;
+        }
+
+        try {
+            return TransactionType.valueOf(type.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("Invalid transaction type: " + type
+                    + ". Expected INCOME, EXPENSE, or TRANSFER", exception);
+        }
     }
 
     private LocalDate parseDate(CSVRecord record, Map<String, String> headers) {

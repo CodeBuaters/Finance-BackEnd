@@ -1,23 +1,23 @@
 $kind: http-request
-name: 'Create Transaction'
+name: "Create Transaction"
 order: 1000
 method: POST
-url: '{{base_url}}/transaction/new'
+url: "{{base_url}}/transaction/new"
 body:
   type: urlencoded
   content:
     - key: amount
-      value: '49.99'
-      description: 'Transaction amount (BigDecimal)'
+      value: "49.99"
+      description: "Transaction amount (BigDecimal)"
     - key: merchant
-      value: 'Coffee Shop'
-      description: 'Merchant name'
+      value: "Coffee Shop"
+      description: "Merchant name"
     - key: description
-      value: 'Morning coffee'
-      description: 'Optional description'
+      value: "Morning coffee"
+      description: "Optional description"
     - key: transactionType
-      value: 'EXPENSE'
-      description: 'EXPENSE or INCOME'
+      value: "TRANSFER"
+      description: "INCOME, EXPENSE, or TRANSFER"
     - key: category
-      value: 'FOOD'
-      description: 'Optional category (e.g. FOOD, TRANSPORT, ENTERTAINMENT)'
+      value: "FOOD"
+      description: "Optional category (e.g. FOOD, TRANSPORT, ENTERTAINMENT)"
