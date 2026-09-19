@@ -1,5 +1,7 @@
 package com.example.finance.finance_backend.Repository;
 
+import java.time.LocalDate;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,4 +16,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     Iterable<Transaction> findByUserId(Long userId);
 
     Iterable<Transaction> findByTransactionType(TransactionType transactionType);
+
+    Iterable<Transaction> findByUserIdAndTransactionDateBetween(
+            Long userId,
+            LocalDate startDate,
+            LocalDate endDate);
 }
