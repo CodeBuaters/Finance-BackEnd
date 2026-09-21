@@ -4,6 +4,8 @@ Spring Boot REST API for the **FinSight** personal finance application.
 
 FinSight is a personal finance dashboard that allows users to import bank transactions from CSV files, automatically categorize expenses, and visualize their financial data through charts and summaries.
 
+Backlog: https://github.com/orgs/CodeBuaters/projects/2/views/1
+
 ## Tech Stack
 
 - Java 17
