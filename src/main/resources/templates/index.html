@@ -32,13 +32,29 @@
         background: #2f6fed;
         text-decoration: none;
       }
+
+      button {
+        display: inline-block;
+        margin-right: 12px;
+        padding: 10px 14px;
+        color: white;
+        background: #2f6fed;
+        text-decoration: none;
+      }
     </style>
   </head>
   <body>
     <div class="box">
       <span sec:authorize="isAuthenticated()"
-        >Logged in as: <span th:text="${username}"></span
-      ></span>
+        >Logged in as: <span th:text="${username}"></span>
+        <form
+          th:action="@{/logout}"
+          method="post"
+          sec:authorize="isAuthenticated()"
+        >
+          <button type="submit">Logout</button>
+        </form>
+      </span>
     </div>
     <br />
     <div class="box">

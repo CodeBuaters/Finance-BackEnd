@@ -45,6 +45,11 @@ public class PageController {
         return "auth/login";
     }
 
+    @GetMapping("/logout")
+    public String logout() {
+        return "redirect:/";
+    }
+
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("registerRequest", new RegisterRequest());
