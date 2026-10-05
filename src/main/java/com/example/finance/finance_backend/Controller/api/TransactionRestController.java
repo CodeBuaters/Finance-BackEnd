@@ -1,6 +1,5 @@
 package com.example.finance.finance_backend.Controller.api;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +13,6 @@ import com.example.finance.finance_backend.Model.TransactionType;
 import com.example.finance.finance_backend.Repository.TransactionRepository;
 import com.example.finance.finance_backend.Service.CsvImportService;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class TransactionRestController {
 
