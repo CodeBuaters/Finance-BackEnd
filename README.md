@@ -1,5 +1,7 @@
 # FinSight Backend
 
+The application is deployed at: [Rahti deployment](https://finance-back-end-codebuaters.2.rahtiapp.fi/)
+
 Spring Boot REST API for the **FinSight** personal finance application.
 
 FinSight is a personal finance dashboard that allows users to import bank transactions from CSV files, automatically categorize expenses, and visualize their financial data through charts and summaries.
