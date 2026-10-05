@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.finance.finance_backend.Model.Category;
 import com.example.finance.finance_backend.Model.Transaction;
 import com.example.finance.finance_backend.Model.TransactionType;
+import com.example.finance.finance_backend.Repository.CategoryRepository;
 import com.example.finance.finance_backend.Repository.TransactionRepository;
 import com.example.finance.finance_backend.Service.CsvImportService;
 
@@ -20,10 +22,13 @@ public class TransactionRestController {
 
     private final TransactionRepository transactionRepository;
     private final CsvImportService csvImportService;
+    private final CategoryRepository categoryRepository;
 
-    public TransactionRestController(TransactionRepository transactionRepository, CsvImportService csvImportService) {
+    public TransactionRestController(TransactionRepository transactionRepository, CsvImportService csvImportService,
+            CategoryRepository categoryRepository) {
         this.transactionRepository = transactionRepository;
         this.csvImportService = csvImportService;
+        this.categoryRepository = categoryRepository;
     }
 
     @GetMapping("/api/transactions")
@@ -36,8 +41,15 @@ public class TransactionRestController {
         return transactionRepository.findById(id).orElse(null);
     }
 
-    @GetMapping("/api/category/{category}/transactions")
-    public @ResponseBody Iterable<Transaction> getTransactionsByCategory(@PathVariable String category) {
+    @GetMapping("/api/category/{categoryId}/transactions")
+    public @ResponseBody Iterable<Transaction> getTransactionsByCategory(@PathVariable Long categoryId) {
+
+        Category category = categoryRepository.findById(categoryId).orElse(null);
+
+        if (category == null) {
+            return java.util.List.of();
+        }
+
         return transactionRepository.findByCategory(category);
     }
 

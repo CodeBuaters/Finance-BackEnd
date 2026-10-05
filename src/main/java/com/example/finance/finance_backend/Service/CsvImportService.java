@@ -21,9 +21,16 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.finance.finance_backend.Model.Category;
 import com.example.finance.finance_backend.Model.Transaction;
 import com.example.finance.finance_backend.Model.TransactionType;
+import com.example.finance.finance_backend.Repository.CategoryRepository;
 
 @Service
 public class CsvImportService {
+
+    private final CategoryRepository categoryRepository;
+
+    public CsvImportService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     public Iterable<Transaction> parseCsv(MultipartFile file) {
         if (file == null || file.isEmpty() || !file.getOriginalFilename().toLowerCase().endsWith(".csv")) {
@@ -56,9 +63,15 @@ public class CsvImportService {
                 transaction.setDescription(optional(record, headers, "description"));
                 transaction.setTransactionDate(parseDate(record, headers));
                 transaction.setTransactionType(parseTransactionType(record, headers, amount));
+
                 String category = optional(record, headers, "category");
+
                 if (category != null) {
-                    transaction.setCategory(Category.valueOf(category.toUpperCase()));
+                    Category categoryEntity = categoryRepository
+                            .findByNameAndUserIsNull(category)
+                            .orElse(null);
+
+                    transaction.setCategory(categoryEntity);
                 }
                 transactions.add(transaction);
             }

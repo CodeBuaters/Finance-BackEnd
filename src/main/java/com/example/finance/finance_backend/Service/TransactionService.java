@@ -1,5 +1,6 @@
 package com.example.finance.finance_backend.Service;
 
+import com.example.finance.finance_backend.Model.Category;
 import com.example.finance.finance_backend.Model.Transaction;
 import com.example.finance.finance_backend.Repository.TransactionRepository;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class TransactionService {
         transactionRepository.deleteById(id);
     }
 
-    public Iterable<Transaction> getTransactionsByCategory(String category) {
+    public Iterable<Transaction> getTransactionsByCategory(Category category) {
         return transactionRepository.findByCategory(category);
     }
 
