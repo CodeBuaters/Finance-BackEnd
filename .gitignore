@@ -36,3 +36,6 @@ application-local.properties
 .env
 .env.*
 !.env.example
+
+### Local H2 database ###
+data/

@@ -1,5 +1,6 @@
 package com.example.finance.finance_backend.Controller.api;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,7 +52,11 @@ public class TransactionRestController {
     }
 
     @PostMapping("/api/import")
-    public @ResponseBody Iterable<Transaction> importTransactions(@RequestParam("file") MultipartFile file) {
-        return csvImportService.parseCsv(file);
+    public ResponseEntity<?> importTransactions(@RequestParam("file") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(csvImportService.parseCsv(file));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(exception.getMessage());
+        }
     }
 }

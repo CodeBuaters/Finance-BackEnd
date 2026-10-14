@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,22 @@ import com.example.finance.finance_backend.Model.TransactionType;
 
 @Service
 public class CsvImportService {
+
+    // Common bank/CSV category names that don't match a Category enum value directly
+    private static final Map<String, Category> CATEGORY_ALIASES = Map.of(
+            "groceries", Category.FOOD,
+            "dining", Category.FOOD,
+            "restaurants", Category.FOOD,
+            "transport", Category.TRANSPORTATION,
+            "health", Category.HEALTHCARE,
+            "subscriptions", Category.ENTERTAINMENT,
+            "electronics", Category.SHOPPING);
+
+    private final RuleBasedCategorizationService categorizationService;
+
+    public CsvImportService(RuleBasedCategorizationService categorizationService) {
+        this.categorizationService = categorizationService;
+    }
 
     public Iterable<Transaction> parseCsv(MultipartFile file) {
         if (file == null || file.isEmpty() || !file.getOriginalFilename().toLowerCase().endsWith(".csv")) {
@@ -50,16 +67,19 @@ public class CsvImportService {
                 }
 
                 Transaction transaction = new Transaction();
-                BigDecimal amount = new BigDecimal(required(record, headers, "amount"));
+                String rawAmount = required(record, headers, "amount");
+                BigDecimal amount;
+                try {
+                    amount = new BigDecimal(rawAmount);
+                } catch (NumberFormatException exception) {
+                    throw new IllegalArgumentException("Invalid amount: " + rawAmount, exception);
+                }
                 transaction.setAmount(amount);
                 transaction.setMerchant(required(record, headers, "merchant"));
                 transaction.setDescription(optional(record, headers, "description"));
                 transaction.setTransactionDate(parseDate(record, headers));
                 transaction.setTransactionType(parseTransactionType(record, headers, amount));
-                String category = optional(record, headers, "category");
-                if (category != null) {
-                    transaction.setCategory(Category.valueOf(category.toUpperCase()));
-                }
+                transaction.setCategory(parseCategory(optional(record, headers, "category"), transaction.getMerchant()));
                 transactions.add(transaction);
             }
         } catch (IOException exception) {
@@ -82,9 +102,33 @@ public class CsvImportService {
         }
     }
 
+    // Uses the CSV category when it is recognised, otherwise categorizes by merchant
+    private Category parseCategory(String category, String merchant) {
+        if (category != null) {
+            String normalized = normalize(category);
+            for (Category value : Category.values()) {
+                if (normalize(value.name()).equals(normalized) || normalize(value.getDisplayName()).equals(normalized)) {
+                    return value;
+                }
+            }
+            Category alias = CATEGORY_ALIASES.get(normalized);
+            if (alias != null) {
+                return alias;
+            }
+        }
+        return categorizationService.categorize(merchant);
+    }
+
     private LocalDate parseDate(CSVRecord record, Map<String, String> headers) {
         String date = optional(record, headers, "transactiondate", "date");
-        return date == null ? LocalDate.now() : LocalDate.parse(date);
+        if (date == null) {
+            return LocalDate.now();
+        }
+        try {
+            return LocalDate.parse(date);
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException("Invalid date: " + date + ". Expected format YYYY-MM-DD", exception);
+        }
     }
 
     private String required(CSVRecord record, Map<String, String> headers, String... names) {
