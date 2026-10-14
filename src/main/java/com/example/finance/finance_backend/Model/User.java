@@ -51,6 +51,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Transaction> transactions = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Budget> budgets = new ArrayList<>();
+
     public User() {
     }
 
@@ -125,5 +129,13 @@ public class User {
 
     public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
+    }
+
+    public List<Budget> getBudgets() {
+        return budgets;
+    }
+
+    public void setBudgets(List<Budget> budgets) {
+        this.budgets = budgets;
     }
 }
