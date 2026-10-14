@@ -3,6 +3,7 @@ package com.example.finance.finance_backend.Controller.api;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +38,17 @@ public class UserRestController {
     @GetMapping("/api/user/email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(user);
+    }
+
+    // Profile of the logged in user. The user comes from the JWT token
+    // (authentication.getName() is the email), so nobody can see another user's profile.
+    @GetMapping("/api/profile")
+    public ResponseEntity<User> getProfile(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName()).orElse(null);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
