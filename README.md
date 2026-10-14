@@ -102,9 +102,16 @@ http://localhost:8080
 
 ### Profile
 
-| Method | Endpoint       | Description                                  |
-| ------ | -------------- | -------------------------------------------- |
-| GET    | `/api/profile` | Logged in user's profile (user from the JWT) |
+| Method | Endpoint                | Description                                  |
+| ------ | ----------------------- | -------------------------------------------- |
+| GET    | `/api/profile`          | Logged in user's profile (user from the JWT) |
+| PUT    | `/api/profile`          | Update first and last name                   |
+| PUT    | `/api/profile/password` | Change password (current password required)  |
+| DELETE | `/api/profile`          | Delete account with its transactions/budgets |
+
+Request body for PUT `/api/profile`: `{ "firstName": "Anna", "lastName": "Smith" }`
+
+Request body for PUT `/api/profile/password`: `{ "currentPassword": "old", "newPassword": "min8chars" }`
 
 ### Transactions
 
