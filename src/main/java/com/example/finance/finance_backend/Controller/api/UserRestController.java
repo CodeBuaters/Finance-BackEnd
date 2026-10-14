@@ -4,20 +4,30 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.finance.finance_backend.Model.User;
 import com.example.finance.finance_backend.Repository.UserRepository;
+import com.example.finance.finance_backend.Request.PasswordRequest;
+import com.example.finance.finance_backend.Request.ProfileRequest;
+
+import jakarta.validation.Valid;
 
 @RestController
 public class UserRestController {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserRestController(UserRepository userRepository) {
+    public UserRestController(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/api/users")
@@ -53,5 +63,46 @@ public class UserRestController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(user);
+    }
+
+    // Updates first and last name of the logged in user (user comes from the JWT token)
+    @PutMapping("/api/profile")
+    public ResponseEntity<User> updateProfile(Authentication authentication,
+            @Valid @RequestBody ProfileRequest request) {
+        User user = userRepository.findByEmail(authentication.getName()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        return ResponseEntity.ok(userRepository.save(user));
+    }
+
+    // Changes the password of the logged in user. The current password must be correct.
+    @PutMapping("/api/profile/password")
+    public ResponseEntity<String> changePassword(Authentication authentication,
+            @Valid @RequestBody PasswordRequest request) {
+        User user = userRepository.findByEmail(authentication.getName()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            return ResponseEntity.badRequest().body("Current password is wrong");
+        }
+        // Saved encrypted, same as on register
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+        return ResponseEntity.ok("Password changed");
+    }
+
+    // Deletes the logged in user's account, together with all their transactions and budgets
+    @DeleteMapping("/api/profile")
+    public ResponseEntity<Void> deleteAccount(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build();
     }
 }
