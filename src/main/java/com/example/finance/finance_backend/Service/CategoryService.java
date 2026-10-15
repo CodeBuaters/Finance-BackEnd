@@ -2,6 +2,7 @@ package com.example.finance.finance_backend.Service;
 
 import org.springframework.stereotype.Service;
 
+import com.example.finance.finance_backend.Dto.CategoryResponse;
 import com.example.finance.finance_backend.Model.Category;
 import com.example.finance.finance_backend.Model.User;
 import com.example.finance.finance_backend.Repository.CategoryRepository;
@@ -24,7 +25,7 @@ public class CategoryService {
         this.jwtService = jwtService;
     }
 
-    public Iterable<Category> getAvailableCategories(HttpServletRequest request) {
+    public Iterable<CategoryResponse> getAvailableCategories(HttpServletRequest request) {
 
         String username = jwtService.getAuthUser(request);
 
@@ -35,7 +36,17 @@ public class CategoryService {
         User user = userRepository.findByEmail(username).orElseThrow();
         Long userId = user.getId();
 
-        return categoryRepository.findAvailableCategories(userId);
+        Iterable<Category> categories = categoryRepository.findAvailableCategories(userId);
+
+        java.util.List<CategoryResponse> responses = new java.util.ArrayList<>();
+
+        for (Category category : categories) {
+            boolean isDefault = category.getUser() == null;
+
+            responses.add(new CategoryResponse(category.getId(), category.getName(), isDefault));
+        }
+
+        return responses;
     }
 
     public Category createCategory(CategoryRequest request, HttpServletRequest httpRequest) {

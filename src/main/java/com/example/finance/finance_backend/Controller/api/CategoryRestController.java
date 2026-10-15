@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.example.finance.finance_backend.Dto.CategoryResponse;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class CategoryRestController {
@@ -27,12 +29,12 @@ public class CategoryRestController {
     }
 
     @GetMapping("/api/categories")
-    public Iterable<Category> getAvailableCategories(HttpServletRequest request) {
+    public Iterable<CategoryResponse> getAvailableCategories(HttpServletRequest request) {
         return categoryService.getAvailableCategories(request);
     }
 
     @PostMapping("/api/categories")
-    public Category creaCategory(@RequestBody CategoryRequest request, HttpServletRequest httpRequest) {
+    public Category createCategory(@RequestBody CategoryRequest request, HttpServletRequest httpRequest) {
         return categoryService.createCategory(request, httpRequest);
     }
 
