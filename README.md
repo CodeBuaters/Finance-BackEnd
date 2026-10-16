@@ -1,5 +1,7 @@
 # FinSight Backend
 
+The application is deployed at: [Rahti deployment](https://finance-back-end-codebuaters.2.rahtiapp.fi/)
+
 Spring Boot REST API for the **FinSight** personal finance application.
 
 FinSight is a personal finance dashboard that allows users to import bank transactions from CSV files, automatically categorize expenses, and visualize their financial data through charts and summaries.
@@ -98,6 +100,19 @@ http://localhost:8080
 | POST   | `/api/auth/register` | Register user |
 | POST   | `/api/auth/login`    | Login user    |
 
+### Profile
+
+| Method | Endpoint                | Description                                  |
+| ------ | ----------------------- | -------------------------------------------- |
+| GET    | `/api/profile`          | Logged in user's profile (user from the JWT) |
+| PUT    | `/api/profile`          | Update first and last name                   |
+| PUT    | `/api/profile/password` | Change password (current password required)  |
+| DELETE | `/api/profile`          | Delete account with its transactions/budgets |
+
+Request body for PUT `/api/profile`: `{ "firstName": "Anna", "lastName": "Smith" }`
+
+Request body for PUT `/api/profile/password`: `{ "currentPassword": "old", "newPassword": "min8chars" }`
+
 ### Transactions
 
 | Method | Endpoint                   | Description             |
@@ -111,16 +126,24 @@ http://localhost:8080
 | Method | Endpoint                    | Description                 |
 | ------ | --------------------------- | --------------------------- |
 | GET    | `/api/dashboard/summary`    | Income, expenses, balance   |
-| GET    | `/api/dashboard/categories` | Expenses by category        |
+| GET    | `/api/dashboard/categories` | Expenses by category (current month) |
 | GET    | `/api/dashboard/monthly`    | Monthly spending statistics |
 
 ### Budgets
 
-| Method | Endpoint            | Description   |
-| ------ | ------------------- | ------------- |
-| GET    | `/api/budgets`      | List budgets  |
-| POST   | `/api/budgets`      | Create budget |
-| PUT    | `/api/budgets/{id}` | Update budget |
+| Method | Endpoint            | Description       |
+| ------ | ------------------- | ----------------- |
+| GET    | `/api/budgets`      | List budgets      |
+| GET    | `/api/budgets/{id}` | Get one budget    |
+| POST   | `/api/budgets`      | Create budget     |
+| PUT    | `/api/budgets/{id}` | Update budget     |
+| DELETE | `/api/budgets/{id}` | Delete budget     |
+
+A budget is a spending limit for one category in one month. Request body for POST and PUT:
+
+```json
+{ "category": "FOOD", "amount": 300.00, "month": "2026-10" }
+```
 
 ## Database (Initial MVP)
 

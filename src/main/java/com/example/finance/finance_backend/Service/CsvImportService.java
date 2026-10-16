@@ -6,11 +6,13 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -26,9 +28,13 @@ import com.example.finance.finance_backend.Repository.CategoryRepository;
 @Service
 public class CsvImportService {
 
+    private final RuleBasedCategorizationService categorizationService;
     private final CategoryRepository categoryRepository;
 
-    public CsvImportService(CategoryRepository categoryRepository) {
+    public CsvImportService(
+            RuleBasedCategorizationService categorizationService,
+            CategoryRepository categoryRepository) {
+        this.categorizationService = categorizationService;
         this.categoryRepository = categoryRepository;
     }
 
@@ -57,22 +63,21 @@ public class CsvImportService {
                 }
 
                 Transaction transaction = new Transaction();
-                BigDecimal amount = new BigDecimal(required(record, headers, "amount"));
+                String rawAmount = required(record, headers, "amount");
+                BigDecimal amount;
+                try {
+                    amount = new BigDecimal(rawAmount);
+                } catch (NumberFormatException exception) {
+                    throw new IllegalArgumentException("Invalid amount: " + rawAmount, exception);
+                }
                 transaction.setAmount(amount);
                 transaction.setMerchant(required(record, headers, "merchant"));
                 transaction.setDescription(optional(record, headers, "description"));
                 transaction.setTransactionDate(parseDate(record, headers));
                 transaction.setTransactionType(parseTransactionType(record, headers, amount));
-
-                String category = optional(record, headers, "category");
-
-                if (category != null) {
-                    Category categoryEntity = categoryRepository
-                            .findByNameAndUserIsNull(category)
-                            .orElse(null);
-
-                    transaction.setCategory(categoryEntity);
-                }
+                transaction.setCategory(parseCategory(
+                        optional(record, headers, "category"),
+                        transaction.getMerchant()));
                 transactions.add(transaction);
             }
         } catch (IOException exception) {
@@ -95,9 +100,31 @@ public class CsvImportService {
         }
     }
 
+    // Uses the CSV category when it is recognised, otherwise categorizes by
+    // merchant
+    private Category parseCategory(String category, String merchant) {
+        if (category != null) {
+            Optional<Category> matchedCategory = categoryRepository
+                    .findByNameAndUserIsNull(category);
+
+            if (matchedCategory.isPresent()) {
+                return matchedCategory.get();
+            }
+        }
+
+        return categorizationService.categorize(merchant);
+    }
+
     private LocalDate parseDate(CSVRecord record, Map<String, String> headers) {
         String date = optional(record, headers, "transactiondate", "date");
-        return date == null ? LocalDate.now() : LocalDate.parse(date);
+        if (date == null) {
+            return LocalDate.now();
+        }
+        try {
+            return LocalDate.parse(date);
+        } catch (DateTimeParseException exception) {
+            throw new IllegalArgumentException("Invalid date: " + date + ". Expected format YYYY-MM-DD", exception);
+        }
     }
 
     private String required(CSVRecord record, Map<String, String> headers, String... names) {

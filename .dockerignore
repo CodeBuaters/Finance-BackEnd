@@ -1,0 +1,10 @@
+target/
+.git/
+.github/
+.vscode/
+.postman/
+postman/
+.env
+.env.*
+**/application-local.properties
+*.md
