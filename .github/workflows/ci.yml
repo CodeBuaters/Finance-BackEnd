@@ -1,0 +1,29 @@
+
+name: Backend CI
+
+# The on option specifies, which repository actions trigger this workflow, e.g. pushing and opening a pull request
+on:
+  push:
+  pull_request:
+
+ # Jobs run concurrently on the specified virtual machine, e.g. on the latest Ubuntu operating system
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+  # Steps are performed in sequence as part of the job
+    steps:
+    # Checkout the repository so that the code is available for the job
+      - name: Checkout repository
+        uses: actions/checkout@v4
+    # actions/setup-java is a ready-made action to set up a Java environment
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17' # In a Java project, replace this with your Java version
+          cache: maven
+
+     # The run option of a step specifies a command to be executed, e.g. build and test the Java project
+      - name: Run tests and build
+        run: ./mvnw -B package
