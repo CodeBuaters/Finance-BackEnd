@@ -1,5 +1,9 @@
 # FinSight Backend
 
+
+[![Backend CI](https://github.com/CodeBuaters/Finance-BackEnd/actions/workflows/ci.yml/badge.svg)](https://github.com/CodeBuaters/Finance-BackEnd/actions/workflows/ci.yml)
+
+
 The application is deployed at: [Rahti deployment](https://finance-back-end-codebuaters.2.rahtiapp.fi/)
 
 Spring Boot REST API for the **FinSight** personal finance application.
