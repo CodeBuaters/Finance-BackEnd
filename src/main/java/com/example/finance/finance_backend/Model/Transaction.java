@@ -38,7 +38,8 @@ public class Transaction {
     @Column(nullable = false)
     private TransactionType transactionType;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 
     @JsonIgnore

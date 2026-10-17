@@ -8,13 +8,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import com.example.finance.finance_backend.Model.Category;
 import com.example.finance.finance_backend.Model.Transaction;
 import com.example.finance.finance_backend.Model.TransactionType;
 import com.example.finance.finance_backend.Model.User;
 import com.example.finance.finance_backend.Repository.UserRepository;
 import com.example.finance.finance_backend.Request.RegisterRequest;
+import com.example.finance.finance_backend.Service.CategoryService;
 import com.example.finance.finance_backend.Service.TransactionService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class PageController {
@@ -22,21 +24,29 @@ public class PageController {
     private final TransactionService transactionService;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final CategoryService categoryService;
 
-    public PageController(TransactionService transactionService, UserRepository userRepository,
-            BCryptPasswordEncoder passwordEncoder) {
+    public PageController(
+            TransactionService transactionService,
+            UserRepository userRepository,
+            BCryptPasswordEncoder passwordEncoder,
+            CategoryService categoryService) {
+
         this.transactionService = transactionService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/")
     public String index(Authentication authentication, Model model) {
+
         if (authentication != null && authentication.isAuthenticated()) {
             userRepository.findByEmail(authentication.getName())
                     .or(() -> userRepository.findByUsername(authentication.getName()))
                     .ifPresent(user -> model.addAttribute("username", user.getUsername()));
         }
+
         return "index";
     }
 
@@ -57,34 +67,58 @@ public class PageController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute RegisterRequest request, Model model) {
+    public String register(
+            @ModelAttribute RegisterRequest request,
+            Model model) {
+
         if (userRepository.findByUsername(request.getUsername()).isPresent()
                 || userRepository.findByEmail(request.getEmail()).isPresent()) {
+
             model.addAttribute("error", "Username or email already exists.");
             return "auth/register";
         }
 
-        User user = new User(request.getUsername(), request.getFirstName(), request.getLastName(),
-                request.getEmail(), passwordEncoder.encode(request.getPassword()));
+        User user = new User(
+                request.getUsername(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()));
+
         userRepository.save(user);
+
         return "redirect:/login";
     }
 
     @GetMapping("/transaction/new")
-    public String newTransaction(Model model) {
+    public String newTransaction(
+            Model model,
+            HttpServletRequest request) {
+
         model.addAttribute("transaction", new Transaction());
         model.addAttribute("transactionTypes", TransactionType.values());
-        model.addAttribute("categories", Category.values());
+        model.addAttribute(
+                "categories",
+                categoryService.getAvailableCategories(request));
+
         return "transactions/form";
     }
 
     @GetMapping("/transaction/edit/{id}")
-    public String editTransaction(@org.springframework.web.bind.annotation.PathVariable Long id, Model model) {
+    public String editTransaction(
+            @org.springframework.web.bind.annotation.PathVariable Long id,
+            Model model,
+            HttpServletRequest request) {
+
         return transactionService.getTransactionById(id)
                 .map(transaction -> {
+
                     model.addAttribute("transaction", transaction);
                     model.addAttribute("transactionTypes", TransactionType.values());
-                    model.addAttribute("categories", Category.values());
+                    model.addAttribute(
+                            "categories",
+                            categoryService.getAvailableCategories(request));
+
                     return "transactions/form";
                 })
                 .orElse("redirect:/transactions");
@@ -92,7 +126,11 @@ public class PageController {
 
     @GetMapping("/transactions")
     public String transactions(Model model) {
-        model.addAttribute("transactions", transactionService.getAllTransactions());
+
+        model.addAttribute(
+                "transactions",
+                transactionService.getAllTransactions());
+
         return "transactions/list";
     }
 

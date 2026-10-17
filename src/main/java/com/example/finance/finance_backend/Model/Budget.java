@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+/* import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated; */
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,20 +19,21 @@ import jakarta.persistence.UniqueConstraint;
 
 // One budget = spending limit for one category in one month, e.g. FOOD, 300.00, "2026-10"
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "category", "budget_month" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "category_id", "budget_month" }))
 public class Budget {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
-    // Format "YYYY-MM", same as MonthlySpendingDto. "month" is a reserved word in some databases.
+    // Format "YYYY-MM", same as MonthlySpendingDto. "month" is a reserved word in
+    // some databases.
     @Column(name = "budget_month", nullable = false, length = 7)
     private String month;
 

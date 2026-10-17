@@ -8,7 +8,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.finance.finance_backend.Model.Budget;
 import com.example.finance.finance_backend.Model.User;
+import com.example.finance.finance_backend.Model.Category;
 import com.example.finance.finance_backend.Repository.BudgetRepository;
+import com.example.finance.finance_backend.Repository.CategoryRepository;
 import com.example.finance.finance_backend.Repository.UserRepository;
 import com.example.finance.finance_backend.Request.BudgetRequest;
 
@@ -17,10 +19,16 @@ public class BudgetService {
 
     private final BudgetRepository budgetRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
-    public BudgetService(BudgetRepository budgetRepository, UserRepository userRepository) {
+    public BudgetService(
+            BudgetRepository budgetRepository,
+            UserRepository userRepository,
+            CategoryRepository categoryRepository) {
+
         this.budgetRepository = budgetRepository;
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public List<Budget> getBudgets(String email) {
@@ -35,13 +43,29 @@ public class BudgetService {
 
     public Budget createBudget(String email, BudgetRequest request) {
         User user = getUser(email);
-        checkDuplicate(user, request);
+
+        Long categoryId = request.getCategory().getId();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Category not found"));
+
+        boolean available = category.getUser() == null
+                || category.getUser().getId().equals(user.getId());
+
+        if (!available) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Category is not available to this user");
+        }
+
+        checkDuplicate(user, category, request.getMonth());
 
         Budget budget = new Budget();
-        budget.setCategory(request.getCategory());
+        budget.setCategory(category);
         budget.setAmount(request.getAmount());
         budget.setMonth(request.getMonth());
         budget.setUser(user);
+
         return budgetRepository.save(budget);
     }
 
@@ -49,14 +73,40 @@ public class BudgetService {
         User user = getUser(email);
         Budget budget = findUserBudget(user, id);
 
-        // Check duplicates only if category or month changes
-        if (budget.getCategory() != request.getCategory() || !budget.getMonth().equals(request.getMonth())) {
-            checkDuplicate(user, request);
+        Long categoryId = request.getCategory().getId();
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Category not found"));
+
+        boolean available = category.getUser() == null
+                || category.getUser().getId().equals(user.getId());
+
+        if (!available) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Category is not available to this user");
         }
 
-        budget.setCategory(request.getCategory());
+        // Check duplicates only if category or month changes
+        boolean categoryChanged = !budget.getCategory().getId().equals(category.getId());
+
+        boolean monthChanged = !budget.getMonth().equals(request.getMonth());
+
+        if (categoryChanged || monthChanged) {
+            if (budgetRepository.existsByUserIdAndCategoryAndMonth(
+                    user.getId(), category, request.getMonth())) {
+
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        "Budget for this category and month already exists");
+            }
+        }
+
+        budget.setCategory(category);
         budget.setAmount(request.getAmount());
         budget.setMonth(request.getMonth());
+
         return budgetRepository.save(budget);
     }
 
@@ -77,10 +127,12 @@ public class BudgetService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Budget not found"));
     }
 
-    private void checkDuplicate(User user, BudgetRequest request) {
-        if (budgetRepository.existsByUserIdAndCategoryAndMonth(user.getId(), request.getCategory(),
-                request.getMonth())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
+    private void checkDuplicate(User user, Category category, String month) {
+        if (budgetRepository.existsByUserIdAndCategoryAndMonth(
+                user.getId(), category, month)) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
                     "Budget for this category and month already exists");
         }
     }
