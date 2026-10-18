@@ -9,20 +9,34 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.finance.finance_backend.Model.Category;
 import com.example.finance.finance_backend.Model.Transaction;
 import com.example.finance.finance_backend.Model.TransactionType;
+import com.example.finance.finance_backend.Repository.CategoryRepository;
 import com.example.finance.finance_backend.Repository.TransactionRepository;
+import com.example.finance.finance_backend.Request.TransactionCategoryRequest;
 import com.example.finance.finance_backend.Service.CsvImportService;
+import com.example.finance.finance_backend.Service.TransactionService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 public class TransactionRestController {
 
     private final TransactionRepository transactionRepository;
     private final CsvImportService csvImportService;
+    private final CategoryRepository categoryRepository;
+    private final TransactionService transactionService;
 
-    public TransactionRestController(TransactionRepository transactionRepository, CsvImportService csvImportService) {
+    public TransactionRestController(TransactionRepository transactionRepository, CsvImportService csvImportService,
+            CategoryRepository categoryRepository, TransactionService transactionService) {
         this.transactionRepository = transactionRepository;
         this.csvImportService = csvImportService;
+        this.categoryRepository = categoryRepository;
+        this.transactionService = transactionService;
     }
 
     @GetMapping("/api/transactions")
@@ -35,14 +49,22 @@ public class TransactionRestController {
         return transactionRepository.findById(id).orElse(null);
     }
 
-    @GetMapping("/api/category/{category}/transactions")
-    public @ResponseBody Iterable<Transaction> getTransactionsByCategory(@PathVariable String category) {
+    @GetMapping("/api/category/{categoryId}/transactions")
+    public @ResponseBody Iterable<Transaction> getTransactionsByCategory(@PathVariable Long categoryId) {
+
+        Category category = categoryRepository.findById(categoryId).orElse(null);
+
+        if (category == null) {
+            return java.util.List.of();
+        }
+
         return transactionRepository.findByCategory(category);
     }
 
     @GetMapping("/api/user/{userId}/transactions")
-    public @ResponseBody Iterable<Transaction> getTransactionsByUserId(@PathVariable Long userId) {
-        return transactionRepository.findByUserId(userId);
+    public @ResponseBody Iterable<Transaction> getTransactionsByUserId(@PathVariable Long userId,
+            HttpServletRequest request) {
+        return transactionService.getTransactionsForCurrentUser(request, userId);
     }
 
     @GetMapping("/api/transaction-type/{transactionType}/transactions")
@@ -59,4 +81,11 @@ public class TransactionRestController {
             return ResponseEntity.badRequest().body(exception.getMessage());
         }
     }
+
+    @PutMapping("/api/transactions/{transactionId}/category")
+    public Transaction updateTransactionCategory(@PathVariable Long transactionId,
+            @RequestBody TransactionCategoryRequest categoryRequest, HttpServletRequest request) {
+        return transactionService.updateTransactionCategory(transactionId, categoryRequest.getCategoryId(), request);
+    }
+
 }

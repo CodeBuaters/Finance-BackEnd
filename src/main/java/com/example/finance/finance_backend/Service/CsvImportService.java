@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -22,24 +23,19 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.finance.finance_backend.Model.Category;
 import com.example.finance.finance_backend.Model.Transaction;
 import com.example.finance.finance_backend.Model.TransactionType;
+import com.example.finance.finance_backend.Repository.CategoryRepository;
 
 @Service
 public class CsvImportService {
 
-    // Common bank/CSV category names that don't match a Category enum value directly
-    private static final Map<String, Category> CATEGORY_ALIASES = Map.of(
-            "groceries", Category.FOOD,
-            "dining", Category.FOOD,
-            "restaurants", Category.FOOD,
-            "transport", Category.TRANSPORTATION,
-            "health", Category.HEALTHCARE,
-            "subscriptions", Category.ENTERTAINMENT,
-            "electronics", Category.SHOPPING);
-
     private final RuleBasedCategorizationService categorizationService;
+    private final CategoryRepository categoryRepository;
 
-    public CsvImportService(RuleBasedCategorizationService categorizationService) {
+    public CsvImportService(
+            RuleBasedCategorizationService categorizationService,
+            CategoryRepository categoryRepository) {
         this.categorizationService = categorizationService;
+        this.categoryRepository = categoryRepository;
     }
 
     public Iterable<Transaction> parseCsv(MultipartFile file) {
@@ -79,7 +75,9 @@ public class CsvImportService {
                 transaction.setDescription(optional(record, headers, "description"));
                 transaction.setTransactionDate(parseDate(record, headers));
                 transaction.setTransactionType(parseTransactionType(record, headers, amount));
-                transaction.setCategory(parseCategory(optional(record, headers, "category"), transaction.getMerchant()));
+                transaction.setCategory(parseCategory(
+                        optional(record, headers, "category"),
+                        transaction.getMerchant()));
                 transactions.add(transaction);
             }
         } catch (IOException exception) {
@@ -102,20 +100,18 @@ public class CsvImportService {
         }
     }
 
-    // Uses the CSV category when it is recognised, otherwise categorizes by merchant
+    // Uses the CSV category when it is recognised, otherwise categorizes by
+    // merchant
     private Category parseCategory(String category, String merchant) {
         if (category != null) {
-            String normalized = normalize(category);
-            for (Category value : Category.values()) {
-                if (normalize(value.name()).equals(normalized) || normalize(value.getDisplayName()).equals(normalized)) {
-                    return value;
-                }
-            }
-            Category alias = CATEGORY_ALIASES.get(normalized);
-            if (alias != null) {
-                return alias;
+            Optional<Category> matchedCategory = categoryRepository
+                    .findByNameAndUserIsNull(category);
+
+            if (matchedCategory.isPresent()) {
+                return matchedCategory.get();
             }
         }
+
         return categorizationService.categorize(merchant);
     }
 
