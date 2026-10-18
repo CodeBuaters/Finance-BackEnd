@@ -2,6 +2,7 @@ package com.example.finance.finance_backend.Controller.api;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,9 +19,13 @@ import com.example.finance.finance_backend.Request.PasswordRequest;
 import com.example.finance.finance_backend.Request.ProfileRequest;
 
 import jakarta.validation.Valid;
+import tools.jackson.databind.JsonNode;
 
 @RestController
 public class UserRestController {
+
+    // Same as the dashboardLayout column length in User
+    private static final int MAX_DASHBOARD_LAYOUT_LENGTH = 10000;
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -93,6 +98,45 @@ public class UserRestController {
         user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         return ResponseEntity.ok("Password changed");
+    }
+
+    // Dashboard layout of the logged in user, stored as JSON. 204 when the user has not
+    // customized the dashboard yet, so the frontend shows its default layout.
+    @GetMapping("/api/profile/dashboard")
+    public ResponseEntity<String> getDashboardLayout(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (user.getDashboardLayout() == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(user.getDashboardLayout());
+    }
+
+    // Saves the dashboard layout of the logged in user. Any JSON object is accepted,
+    // the frontend validates the widgets when it loads the layout.
+    @PutMapping("/api/profile/dashboard")
+    public ResponseEntity<String> updateDashboardLayout(Authentication authentication,
+            @RequestBody JsonNode layout) {
+        User user = userRepository.findByEmail(authentication.getName()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!layout.isObject()) {
+            return ResponseEntity.badRequest().body("Dashboard layout must be a JSON object");
+        }
+        String json = layout.toString();
+        if (json.length() > MAX_DASHBOARD_LAYOUT_LENGTH) {
+            return ResponseEntity.badRequest().body("Dashboard layout is too large");
+        }
+        user.setDashboardLayout(json);
+        userRepository.save(user);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(json);
     }
 
     // Deletes the logged in user's account, together with all their transactions and budgets

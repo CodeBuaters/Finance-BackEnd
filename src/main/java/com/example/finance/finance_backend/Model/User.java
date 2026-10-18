@@ -55,6 +55,12 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Budget> budgets = new ArrayList<>();
 
+    // Dashboard widget layout as JSON. The frontend owns its structure, the backend
+    // only stores it. Null until the user customizes the dashboard.
+    @JsonIgnore
+    @Column(length = 10000)
+    private String dashboardLayout;
+
     public User() {
     }
 
@@ -137,5 +143,13 @@ public class User {
 
     public void setBudgets(List<Budget> budgets) {
         this.budgets = budgets;
+    }
+
+    public String getDashboardLayout() {
+        return dashboardLayout;
+    }
+
+    public void setDashboardLayout(String dashboardLayout) {
+        this.dashboardLayout = dashboardLayout;
     }
 }
