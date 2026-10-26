@@ -39,3 +39,5 @@ application-local.properties
 
 ### Local H2 database ###
 data/
+
+postgres-secret.yaml
