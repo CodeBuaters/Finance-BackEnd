@@ -62,12 +62,7 @@ spec:
   ports:
     - port: 5432
       targetPort: 5432
-env:
-  - name: DATABASE_URL
-    valueFrom:
-      secretKeyRef:
-        name: app-db
-        key: DATABASE_URL
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
