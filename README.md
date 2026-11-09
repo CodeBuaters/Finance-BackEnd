@@ -32,6 +32,12 @@ Backlog: https://github.com/orgs/CodeBuaters/projects/2/views/1
 - REST API for dashboard statistics.
 - Budget management.
 
+## API Documentation (Swagger UI)
+
+With the app running, open [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) to browse and try out every endpoint. The raw OpenAPI spec is at `/v3/api-docs`.
+
+To call protected endpoints, log in with `POST /api/auth/login`, copy the `accessToken`, click **Authorize** and paste it.
+
 ## Project Structure
 
 ```text
