@@ -1,5 +1,12 @@
 package com.example.finance.finance_backend.Controller.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -28,6 +35,7 @@ import com.example.finance.finance_backend.Dto.AccessTokenPayloadDto;
 import com.example.finance.finance_backend.Model.User;
 import com.example.finance.finance_backend.Repository.UserRepository;
 
+@Tag(name = "Authentication", description = "Register a new account, log in to get a JWT access token, and log out")
 @RestController
 public class AuthRestController {
 
@@ -44,6 +52,12 @@ public class AuthRestController {
     }
 
 
+    @Operation(summary = "Register a new user", description = "Creates a new user account. The username and email must both be unique. The password is stored as a BCrypt hash. Does not log the user in; call the login endpoint afterwards.")
+    @SecurityRequirements
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "User registered successfully"),
+            @ApiResponse(responseCode = "409", description = "Username or email is already in use")
+    })
     @PostMapping("/api/auth/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         //tarkista onko username ja email käytössä jo
@@ -73,6 +87,13 @@ public class AuthRestController {
         return ResponseEntity.status(201).body("User registered successfully!");
     }
 
+    @Operation(summary = "Log in and get an access token", description = "Checks the email and password and returns a signed JWT access token with its expiry time. Send the token in the Authorization header as `Bearer <token>` on all other requests.")
+    @SecurityRequirements
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Login successful, returns the access token"),
+            @ApiResponse(responseCode = "400", description = "Request body is invalid", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Invalid email or password", content = @Content)
+    })
     @PostMapping("/api/auth/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest login, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -100,6 +121,11 @@ public class AuthRestController {
 
     }
 
+    @Operation(summary = "Log out", description = "Clears the server side session and security context. JWT tokens are stateless, so the client should also delete its stored token.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Logged out", content = @Content),
+            @ApiResponse(responseCode = "302", description = "Missing or invalid JWT token, redirects to /login", content = @Content)
+    })
     @PostMapping("/api/auth/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
