@@ -1,8 +1,13 @@
 package com.example.finance.finance_backend.Request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Login credentials")
 public class LoginRequest {
     
+    @Schema(description = "Email address of the account", example = "anna@example.com")
     private String email;
+    @Schema(description = "Password of the account", example = "secret123")
     private String password;
 
     

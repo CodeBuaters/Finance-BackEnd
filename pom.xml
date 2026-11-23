@@ -98,6 +98,12 @@
             <artifactId>commons-csv</artifactId>
             <version>1.8</version>
         </dependency>
+        <!-- Swagger UI / OpenAPI docs (springdoc 3.x supports Spring Boot 4) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.2.0</version>
+        </dependency>
         <!-- JWT authentication -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
