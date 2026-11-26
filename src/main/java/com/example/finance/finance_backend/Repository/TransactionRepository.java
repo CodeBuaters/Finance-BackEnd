@@ -1,6 +1,7 @@
 package com.example.finance.finance_backend.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,10 +17,18 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Iterable<Transaction> findByUserId(Long userId);
 
+    Iterable<Transaction> findByUserIdIn(List<Long> userIds);
+
     Iterable<Transaction> findByTransactionType(TransactionType transactionType);
 
     Iterable<Transaction> findByUserIdAndTransactionDateBetween(
             Long userId,
+            LocalDate startDate,
+            LocalDate endDate);
+
+    // Same as above for several users, e.g. all members of a family
+    Iterable<Transaction> findByUserIdInAndTransactionDateBetween(
+            List<Long> userIds,
             LocalDate startDate,
             LocalDate endDate);
 }

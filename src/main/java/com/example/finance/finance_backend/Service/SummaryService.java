@@ -3,6 +3,7 @@ package com.example.finance.finance_backend.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -20,14 +21,14 @@ public class SummaryService {
         this.transactionRepository = transactionRepository;
     }
 
-    public SummaryDto getSummary(Long userId) {
+    public SummaryDto getSummary(List<Long> userIds) {
         YearMonth currentMonth = YearMonth.now();
 
         LocalDate startDate = currentMonth.atDay(1);
         LocalDate endDate = currentMonth.atEndOfMonth();
 
-        Iterable<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
-                userId,
+        Iterable<Transaction> transactions = transactionRepository.findByUserIdInAndTransactionDateBetween(
+                userIds,
                 startDate,
                 endDate);
 

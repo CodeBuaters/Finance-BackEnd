@@ -12,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -60,6 +61,11 @@ public class User {
     @JsonIgnore
     @Column(length = 10000)
     private String dashboardLayout;
+
+    // Null when the user is not in a family
+    @JsonIgnore
+    @ManyToOne
+    private Family family;
 
     public User() {
     }
@@ -151,5 +157,13 @@ public class User {
 
     public void setDashboardLayout(String dashboardLayout) {
         this.dashboardLayout = dashboardLayout;
+    }
+
+    public Family getFamily() {
+        return family;
+    }
+
+    public void setFamily(Family family) {
+        this.family = family;
     }
 }
