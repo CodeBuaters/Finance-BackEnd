@@ -7,9 +7,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
+import java.time.YearMonth;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.finance.finance_backend.Dto.CategorySpendingDto;
@@ -75,13 +78,19 @@ public class DashboardRestController {
             @ApiResponse(responseCode = "302", description = "Missing or invalid JWT token, redirects to /login", content = @Content)
     })
     @GetMapping("/api/dashboard/categories")
-    public List<CategorySpendingDto> getExpensesByCategory(Authentication authentication) {
+    public List<CategorySpendingDto> getExpensesByCategory(
+            Authentication authentication,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth month) {
 
         User user = userRepository.findByEmail(authentication.getName()).orElseThrow();
 
         Long userId = user.getId();
 
-        return categorySpendingService.getExpensesByCategory(userId);
+        if (month == null) {
+            return categorySpendingService.getExpensesByCategory(userId);
+        }
+
+        return categorySpendingService.getExpensesByCategory(userId, month);
     }
 
 }

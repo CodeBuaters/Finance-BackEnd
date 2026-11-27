@@ -29,17 +29,21 @@ public class CategorySpendingService {
         this.categoryRepository = categoryRepository;
     }
 
-    // Expenses of the current month grouped by category, e.g. FOOD 120.00, TRAVEL
-    // 50.00.
-    // Same month as SummaryService, so the totals add up to the summary's expenses.
+    // Overloaded method (same method name, different parameters): defaults to the
+    // current month.
+    // Expenses of the current month grouped by category, e.g. FOOD 120.00 TRAVEL
+    // 50.00
     public List<CategorySpendingDto> getExpensesByCategory(Long userId) {
+        return getExpensesByCategory(userId, YearMonth.now());
+    }
 
-        YearMonth currentMonth = YearMonth.now();
+    // Returns expenses for the selected month, grouped by category.
+    public List<CategorySpendingDto> getExpensesByCategory(Long userId, YearMonth month) {
 
         Iterable<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
                 userId,
-                currentMonth.atDay(1),
-                currentMonth.atEndOfMonth());
+                month.atDay(1),
+                month.atEndOfMonth());
 
         // Group expenses by category
         Map<Category, BigDecimal> totals = new HashMap<>();
