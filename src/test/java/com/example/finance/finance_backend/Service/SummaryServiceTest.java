@@ -31,14 +31,14 @@ class SummaryServiceTest {
     void calculatesIncomeExpensesAndBalanceForCurrentMonth() {
         Long userId = 42L;
         YearMonth currentMonth = YearMonth.now();
-        when(transactionRepository.findByUserIdAndTransactionDateBetween(
-                userId, currentMonth.atDay(1), currentMonth.atEndOfMonth()))
+        when(transactionRepository.findByUserIdInAndTransactionDateBetween(
+                List.of(userId), currentMonth.atDay(1), currentMonth.atEndOfMonth()))
                 .thenReturn(List.of(
                         transaction("250.00", TransactionType.INCOME),
                         transaction("75.50", TransactionType.EXPENSE),
                         transaction("20.00", TransactionType.TRANSFER)));
 
-        var summary = summaryService.getSummary(userId);
+        var summary = summaryService.getSummary(List.of(userId));
 
         assertEquals(new BigDecimal("250.00"), summary.getIncome());
         assertEquals(new BigDecimal("75.50"), summary.getExpenses());
@@ -50,11 +50,11 @@ class SummaryServiceTest {
     void returnsZeroTotalsWhenUserHasNoTransactionsThisMonth() {
         Long userId = 42L;
         YearMonth currentMonth = YearMonth.now();
-        when(transactionRepository.findByUserIdAndTransactionDateBetween(
-                userId, currentMonth.atDay(1), currentMonth.atEndOfMonth()))
+        when(transactionRepository.findByUserIdInAndTransactionDateBetween(
+                List.of(userId), currentMonth.atDay(1), currentMonth.atEndOfMonth()))
                 .thenReturn(List.of());
 
-        var summary = summaryService.getSummary(userId);
+        var summary = summaryService.getSummary(List.of(userId));
 
         assertEquals(BigDecimal.ZERO, summary.getIncome());
         assertEquals(BigDecimal.ZERO, summary.getExpenses());

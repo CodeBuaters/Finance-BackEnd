@@ -32,12 +32,12 @@ public class CategorySpendingService {
     // Expenses of the current month grouped by category, e.g. FOOD 120.00, TRAVEL
     // 50.00.
     // Same month as SummaryService, so the totals add up to the summary's expenses.
-    public List<CategorySpendingDto> getExpensesByCategory(Long userId) {
+    public List<CategorySpendingDto> getExpensesByCategory(List<Long> userIds) {
 
         YearMonth currentMonth = YearMonth.now();
 
-        Iterable<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
-                userId,
+        Iterable<Transaction> transactions = transactionRepository.findByUserIdInAndTransactionDateBetween(
+                userIds,
                 currentMonth.atDay(1),
                 currentMonth.atEndOfMonth());
 

@@ -21,15 +21,15 @@ public class MonthlySpendingService {
         this.transactionRepository = transactionRepository;
     }
 
-    public List<MonthlySpendingDto> getMonthlySpending(Long userId) {
+    public List<MonthlySpendingDto> getMonthlySpending(List<Long> userIds) {
 
         YearMonth currentMonth = YearMonth.now();
         YearMonth startMonth = currentMonth.minusMonths(11);
 
         List<MonthlySpendingDto> result = new ArrayList<>();
 
-        Iterable<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
-                userId,
+        Iterable<Transaction> transactions = transactionRepository.findByUserIdInAndTransactionDateBetween(
+                userIds,
                 startMonth.atDay(1),
                 currentMonth.atEndOfMonth());
 
