@@ -1,3 +1,4 @@
+
 package com.example.finance.finance_backend.Service;
 
 import java.math.BigDecimal;
@@ -29,19 +30,26 @@ public class CategorySpendingService {
         this.categoryRepository = categoryRepository;
     }
 
-    // Overloaded method (same method name, different parameters): defaults to the
-    // current month.
-    // Expenses of the current month grouped by category, e.g. FOOD 120.00 TRAVEL
-    // 50.00
+    // One user's expenses for the current month.
     public List<CategorySpendingDto> getExpensesByCategory(Long userId) {
         return getExpensesByCategory(userId, YearMonth.now());
     }
 
-    // Returns expenses for the selected month, grouped by category.
+    // One user's expenses for the selected month.
     public List<CategorySpendingDto> getExpensesByCategory(Long userId, YearMonth month) {
+        return getExpensesByCategory(List.of(userId), month);
+    }
 
-        Iterable<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
-                userId,
+    // Multiple users' expenses for the current month.
+    public List<CategorySpendingDto> getExpensesByCategory(List<Long> userIds) {
+        return getExpensesByCategory(userIds, YearMonth.now());
+    }
+
+    // Multiple users' expenses for the selected month.
+    public List<CategorySpendingDto> getExpensesByCategory(List<Long> userIds, YearMonth month) {
+
+        Iterable<Transaction> transactions = transactionRepository.findByUserIdInAndTransactionDateBetween(
+                userIds,
                 month.atDay(1),
                 month.atEndOfMonth());
 
@@ -51,8 +59,7 @@ public class CategorySpendingService {
         for (Transaction transaction : transactions) {
             if (transaction.getTransactionType() == TransactionType.EXPENSE) {
 
-                // Transactions without a category are assigned to the default "Other"
-                // category
+                // Transactions without a category are assigned to the default "Other" category
                 Category category = transaction.getCategory();
                 if (category == null) {
                     category = categoryRepository.findByNameAndUserIsNull("Other").orElse(null);

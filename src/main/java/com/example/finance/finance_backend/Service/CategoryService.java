@@ -1,5 +1,8 @@
 package com.example.finance.finance_backend.Service;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.finance.finance_backend.Dto.CategoryResponse;
@@ -28,6 +31,14 @@ public class CategoryService {
     public Iterable<CategoryResponse> getAvailableCategories(HttpServletRequest request) {
 
         String username = jwtService.getAuthUser(request);
+
+        // Thymeleaf pages use session login instead of a JWT, so fall back to the logged-in user
+        if (username == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
+                username = authentication.getName();
+            }
+        }
 
         if (username == null) {
             throw new RuntimeException("User not authenticated");

@@ -155,21 +155,16 @@ A budget is a spending limit for one category in one month. Request body for POS
 { "category": "FOOD", "amount": 300.00, "month": "2026-10" }
 ```
 
-## Database (Initial MVP)
+## Database
 
-Entities:
+The FinSight database consists of four main entities:
 
 - User
 - Transaction
 - Category
-- Budget (planned)
+- Budget
 
-Relationship:
-
-```text
-User
- └── Transactions (1:N)
-```
+For a detailed description of the database structure, including entity attributes, constraints and relationships, see [Data Model](DATA_MODEL.md).
 
 ## Development Workflow
 

@@ -75,7 +75,7 @@
             <td th:text="${transaction.merchant}">Merchant</td>
             <td th:text="${transaction.description}">Description</td>
             <td
-              th:text="${transaction.category != null ? transaction.category.displayName : 'Uncategorized'}"
+              th:text="${transaction.category != null ? transaction.category.name : 'Uncategorized'}"
             >
               Uncategorized
             </td>

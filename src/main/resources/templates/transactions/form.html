@@ -92,9 +92,9 @@
           <option value="" selected>Select category</option>
           <option
             th:each="category : ${categories}"
-            th:value="${category}"
-            th:text="${category.displayName}"
-            th:selected="${category == transaction.category}"
+            th:value="${category.id}"
+            th:text="${category.name}"
+            th:selected="${transaction.category != null and category.id == transaction.category.id}"
           ></option>
         </select>
         <button type="submit">Save transaction</button>
